@@ -13,23 +13,10 @@ chmod +x elm
 # NOTE: no "sudo" access, so we will keep usage local/relative
 
 # REGION: build clients
-# operator login
-cd ./client/operator/login/scripts/
+# app
+cd ./client/scripts/
 ./prodbuild.sh
-cd ../../../../
-
-# operator app
-cd ./client/operator/app/scripts/
-./elmprodbuild.sh
-cd ../../../../
-
-# user app
-cd ./client/user/scripts/
-./elmprodbuild.sh
-cd ../../../
-
-# 404
-# TODO
+cd ../../
 
 # REGION: build server
 cd ./server
