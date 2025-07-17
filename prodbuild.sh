@@ -15,7 +15,7 @@ chmod +x elm
 # REGION: build clients
 # app
 cd ./client/scripts/
-./prodbuild.sh
+./elmprodbuild.sh
 cd ../../
 
 # REGION: build server
