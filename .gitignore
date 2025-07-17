@@ -1,0 +1,17 @@
+# development files and notes
+/.dev
+
+# elm build
+**/elm-stuff
+
+# client build
+/dist
+
+# app build
+*/target
+
+# editor config
+.vscode
+
+# env files
+*/.env

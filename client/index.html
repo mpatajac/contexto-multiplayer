@@ -1,0 +1,74 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+	<meta charset="UTF-8">
+	<meta name="viewport" content="width=device-width, initial-scale=1.0">
+	<title>Contexto - Multiplayer</title>
+	<link rel="stylesheet" href="app/style/style.css">
+	<script src="app/elm-app-min.js"></script>
+</head>
+
+<body>
+	<div id="app"></div>
+
+	<script>
+		init();
+
+		function init() {
+			const sessionId = getSessionId();
+
+			const app = Elm.Main.init({
+				node: document.getElementById('app'),
+				flags: {
+					"session_id": sessionId
+				}
+			});
+
+			// handle sse messages (forward to elm)
+			handleSse(app, sessionId);
+		}
+
+		function getSessionId() {
+			// (try to) extract session id from url
+			return window.location.pathname.slice(1).split('/')[0].slice(0, 4) ??
+				// or generate (somewhat) random 4-digit code
+				Math.random().toString().slice(2, 6);
+		}
+
+		function handleSse(app, sessionId) {
+			// subscribe to messages
+			const sse = new EventSource(`/sse/${sessionId}`);
+
+			sse.onopen = (_) => {
+				console.info(`Started subscription to session ${sessionId}`);
+			}
+
+			sse.onerror = (_) => {
+				console.error("Eventsource failed. Restarting connection...");
+			}
+
+			// close connection before page close
+			addEventListener("beforeunload", (_) => {
+				console.info("Closing page - closing message subscription...");
+				sse.close();
+			});
+
+			const expectedSseMessageKinds = [
+				"newGuess",
+				"correctGuess"
+			];
+
+			// forward messages to elm port
+			expectedSseMessageKinds.forEach(kind => {
+				sse.addEventListener(kind, (message) => {
+					const messageData = JSON.parse(message.data);
+
+					app.ports.sse.send({ kind, ...messageData })
+				});
+			});
+		}
+	</script>
+</body>
+
+</html>

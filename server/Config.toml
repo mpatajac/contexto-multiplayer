@@ -1,0 +1,3 @@
+dist_root_path = "../dist"
+
+sse_keep_alive_interval = 30 # NOTE: in seconds
