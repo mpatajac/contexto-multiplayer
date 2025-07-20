@@ -1,0 +1,17 @@
+.guess-score-list .guess-score {
+	/*
+		TODO: figure out how to prevent animation
+		on initial guesses load (from server)
+	*/
+	animation: new-guess 2500ms 100ms ease-in-out forwards;
+
+	border-width: 3px;
+	border-style: solid;
+	border-color: black;
+}
+
+@keyframes new-guess {
+	100% {
+		border-color: white;
+	}
+}

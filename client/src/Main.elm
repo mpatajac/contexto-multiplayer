@@ -1,5 +1,4 @@
 -- TODO!: handle word being guessed
--- TODO!: highlight last guess
 
 
 module Main exposing (main)
@@ -284,7 +283,7 @@ viewGuesses guesses =
                 |> List.sortBy Tuple.second
                 |> List.map viewKeyedGuess
     in
-    Html.Keyed.node "div" [] guessesDisplay
+    Html.Keyed.node "div" [ Html.Attributes.class "guess-score-list" ] guessesDisplay
 
 
 viewKeyedGuess : ( Guess, Score ) -> ( String, Html Msg )
@@ -296,7 +295,7 @@ viewKeyedGuess (( guess, _ ) as guessScore) =
 viewGuess : ( Guess, Score ) -> Html Msg
 viewGuess ( guess, score ) =
     Html.div
-        []
+        [ Html.Attributes.class "guess-score" ]
         -- TODO: remove space, add spacing with styling
         [ Html.span [] [ Html.text (guess ++ " ") ]
         , Html.span [] [ Html.text (String.fromInt score) ]

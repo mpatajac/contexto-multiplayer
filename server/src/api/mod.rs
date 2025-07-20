@@ -11,10 +11,7 @@ use axum::{
 use crate::data::AppState;
 
 pub fn router(app_state: Arc<AppState>) -> Router {
-    Router::new()
-        // TODO: "/" => start session
-        // NOTE: session is "started" by sse... just have FE generate session id on "blank start"?
-        .nest("/:session_id", session_router(app_state))
+    Router::new().nest("/:session_id", session_router(app_state))
 }
 
 fn session_router(app_state: Arc<AppState>) -> Router {

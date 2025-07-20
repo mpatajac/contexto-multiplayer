@@ -153,7 +153,7 @@ impl Connections {
             session.clients.remove(&addr);
 
             // TODO: don't remove here, as we would lose all game state
-            // - have job remove them
+            // => have job remove them
             // if the session is empty, remove it too
             // if session.clients.is_empty() {
             //     self.sessions.remove(session_id);
