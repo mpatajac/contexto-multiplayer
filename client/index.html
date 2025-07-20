@@ -17,11 +17,14 @@
 
 		function init() {
 			const sessionId = getSessionId();
+			const sessionLink = buildSessionLink(sessionId);
+
 
 			const app = Elm.Main.init({
 				node: document.getElementById('app'),
 				flags: {
-					"session_id": sessionId
+					"session_id": sessionId,
+					"session_link": sessionLink,
 				}
 			});
 
@@ -31,9 +34,13 @@
 
 		function getSessionId() {
 			// (try to) extract session id from url
-			return window.location.pathname.slice(1).split('/')[0].slice(0, 4) ??
+			return window.location.pathname.slice(1).split('/')[0].slice(0, 4) ||
 				// or generate (somewhat) random 4-digit code
 				Math.random().toString().slice(2, 6);
+		}
+
+		function buildSessionLink(sessionId) {
+			return `${window.location.host}/${sessionId}`;
 		}
 
 		function handleSse(app, sessionId) {

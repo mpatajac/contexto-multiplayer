@@ -14,6 +14,6 @@ pub fn router(app_state: Arc<AppState>, dist_root: &Path) -> Router {
 
 fn static_router(dist_root: &Path) -> Router {
     Router::new()
-        .nest_service("/:room_number", ServeDir::new(dist_root.join("app")))
+        .nest_service("/:session_id", ServeDir::new(dist_root.join("app")))
         .fallback_service(ServeDir::new(dist_root.join("app")))
 }

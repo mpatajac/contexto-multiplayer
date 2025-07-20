@@ -1,3 +1,7 @@
+-- TODO!: handle word being guessed
+-- TODO!: highlight last guess
+
+
 module Main exposing (main)
 
 import Browser
@@ -21,7 +25,7 @@ import Sse
 import Utils.Api.Endpoint exposing (guess)
 import Utils.Api.Response as Response
 import Utils.Data.Fetched as Fetched exposing (Fetched(..))
-import Utils.Data.Flags as Flags
+import Utils.Data.Flags as Flags exposing (Flags)
 import Utils.Utils
 
 
@@ -41,6 +45,7 @@ main =
 
 type alias Model =
     { sessionId : SessionId
+    , sessionLink : String
     , gameState : Fetched GameState
     , guessInput : String
     }
@@ -51,6 +56,7 @@ type alias Model =
 emptyModel : Model
 emptyModel =
     { sessionId = SessionId.empty
+    , sessionLink = ""
     , gameState = Fetched.Fetching
     , guessInput = ""
     }
@@ -72,17 +78,14 @@ init rawFlags =
             ( emptyModel, Cmd.none )
 
         Ok flags ->
-            let
-                sessionId =
-                    flags.sessionId
-            in
-            ( initData sessionId, Game.init sessionId GameInit )
+            ( initData flags, Game.init flags.sessionId GameInit )
 
 
-initData : SessionId -> Model
-initData sessionId =
+initData : Flags -> Model
+initData { sessionId, sessionLink } =
     { emptyModel
         | sessionId = sessionId
+        , sessionLink = sessionLink
     }
 
 
@@ -224,8 +227,17 @@ view model =
 
 viewGameState : Model -> GameState -> Html Msg
 viewGameState model gameState =
+    let
+        guessCountText state =
+            "Guesses: " ++ (state |> GameState.guessCount |> String.fromInt)
+
+        sessionLinkText =
+            "Session " ++ SessionId.display model.sessionId
+    in
     Html.main_ [] <|
         [ Html.h1 [] [ Html.text "Contexto - multiplayer" ]
+        , Html.span [] [ Html.text <| guessCountText gameState ]
+        , Html.a [ Html.Attributes.href model.sessionLink ] [ Html.text sessionLinkText ]
         , Html.Lazy.lazy viewInput model.guessInput
         , viewSpacer
         , Html.Lazy.lazy viewLastActionStatus gameState.lastActionStatus

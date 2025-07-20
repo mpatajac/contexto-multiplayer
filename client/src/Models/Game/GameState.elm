@@ -1,4 +1,4 @@
-module Models.Game.GameState exposing (GameState, calculatingScore, correctGuess, decoder, duplicateGuess, failedAction, newGuess, receivedGuess)
+module Models.Game.GameState exposing (GameState, calculatingScore, correctGuess, decoder, duplicateGuess, failedAction, guessCount, newGuess, receivedGuess)
 
 import Dict exposing (Dict)
 import Json.Decode as JD
@@ -17,6 +17,15 @@ type alias GameState =
     , guesses : Dict Guess Score
     , lastActionStatus : LastActionStatus
     }
+
+
+
+-- STATS
+
+
+guessCount : GameState -> Int
+guessCount =
+    .guesses >> Dict.keys >> List.length
 
 
 
