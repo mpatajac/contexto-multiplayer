@@ -10,15 +10,25 @@
 		TODO: figure out how to prevent animation
 		on initial guesses load (from server)
 	*/
-	animation: new-guess 2500ms 100ms ease-in-out forwards;
+	animation: new-guess 500ms 100ms ease-in-out forwards;
 
 	border-width: .25em;
 	border-style: solid;
 	border-color: var(--bulma-label-color);
+
+	scale: 1.1;
+
+	/* background-color: var(--bulma-box-background-color); */
+	/* For browsers that do not support gradients */
+	/* background-image: linear-gradient(to right, var(--bulma-success) 20%, rgba(0, 0, 0, 0) 20%); */
+	/* Standard syntax (must be last) */
 }
 
 @keyframes new-guess {
 	100% {
-		border-color: var(--bulma-body-background-color);
+		/* border-color: var(--bulma-body-background-color); */
+		/* background-color: var(--bulma-box-background-color); */
+		/* border-color: initial; */
+		scale: 1;
 	}
 }

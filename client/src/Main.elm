@@ -264,6 +264,7 @@ viewGameState model gameState =
         , Html.Lazy.lazy2 viewInput model.guessInput gameState
         , Html.Lazy.lazy viewTargetWordAlert gameState.targetWord
         , Html.Lazy.lazy viewLastActionStatus gameState.lastActionStatus
+        , Html.hr [] []
         , Html.Lazy.lazy viewGuesses gameState.guesses
         ]
 
@@ -311,7 +312,6 @@ viewLastActionStatus lastActionStatus =
             , "is-justify-content-space-between"
             , "box"
             , "p-3"
-            , "my-5"
             , "has-text-weight-semibold"
             ]
     in
@@ -358,13 +358,38 @@ viewGuess ( guess, score ) maybeClassList =
             , "p-3"
             , "my-3"
             , "has-text-weight-semibold"
+            , "is-shadowless"
             ]
 
         classList =
             Maybe.withDefault defaultClassList maybeClassList
     in
     Html.div
-        [ Utils.Utils.classes classList ]
-        [ Html.span [] [ Html.text guess ]
-        , Html.span [] [ Html.text (String.fromInt score) ]
+        [ Utils.Utils.classes classList
+        , Html.Attributes.style "border-color" (determineGuessColor score)
+        , Html.Attributes.style "color" (determineGuessColor score)
+
+        -- TODO:
+        -- , Html.Attributes.style "background-image" "linear-gradient(to right, var(--bulma-warning) 20%, rgba(0, 0, 0, 0) 20%)"
         ]
+        [ Html.span [] [ Html.text guess ]
+        , Html.span
+            []
+            [ Html.text (String.fromInt score) ]
+        ]
+
+
+determineGuessColor : Score -> String
+determineGuessColor score =
+    let
+        colorVariable =
+            if score <= 300 then
+                "success"
+
+            else if score <= 1500 then
+                "warning"
+
+            else
+                "danger"
+    in
+    "var(--bulma-" ++ colorVariable ++ ")"
