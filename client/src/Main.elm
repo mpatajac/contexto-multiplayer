@@ -1,6 +1,3 @@
--- TODO!: handle word being guessed
-
-
 module Main exposing (main)
 
 import Browser
@@ -21,7 +18,6 @@ import Models.Score exposing (Score)
 import Models.SessionId as SessionId exposing (SessionId)
 import Models.Sse.Message exposing (Message)
 import Sse
-import Utils.Api.Endpoint exposing (guess)
 import Utils.Api.Response as Response
 import Utils.Data.Fetched as Fetched exposing (Fetched(..))
 import Utils.Data.Flags as Flags exposing (Flags)
@@ -99,6 +95,7 @@ type Msg
     | UpdateGuessInput Guess
     | SubmitGuess
     | HandleGuessSubmissionResponse (Response.ResponseResult GuessScore)
+    | RevealTargetWord
 
 
 update : Msg -> Model -> ( Model, Cmd Msg )
@@ -194,6 +191,24 @@ update msg model =
                 _ ->
                     ( model, Cmd.none )
 
+        RevealTargetWord ->
+            case model.gameState of
+                Loaded gameState ->
+                    case gameState.targetWord of
+                        Just targetWord ->
+                            let
+                                updatedGameState =
+                                    GameState.receivedGuess gameState (GuessScore targetWord 1)
+                            in
+                            ( { model | gameState = Fetched.Loaded updatedGameState }, Cmd.none )
+
+                        Nothing ->
+                            -- invalid case, ignore
+                            ( model, Cmd.none )
+
+                _ ->
+                    ( model, Cmd.none )
+
 
 
 -- SUBSCRIPTIONS
@@ -237,7 +252,9 @@ viewGameState model gameState =
         [ Html.h1 [] [ Html.text "Contexto - multiplayer" ]
         , Html.span [] [ Html.text <| guessCountText gameState ]
         , Html.a [ Html.Attributes.href model.sessionLink ] [ Html.text sessionLinkText ]
-        , Html.Lazy.lazy viewInput model.guessInput
+        , Html.Lazy.lazy2 viewInput model.guessInput gameState
+        , viewSpacer
+        , Html.Lazy.lazy viewTargetWordAlert gameState.targetWord
         , viewSpacer
         , Html.Lazy.lazy viewLastActionStatus gameState.lastActionStatus
         , viewSpacer
@@ -245,17 +262,30 @@ viewGameState model gameState =
         ]
 
 
-viewInput : Guess -> Html Msg
-viewInput guessInput =
+viewInput : Guess -> GameState -> Html Msg
+viewInput guessInput gameState =
     Html.input
         [ Html.Attributes.placeholder "type a word"
         , Html.Attributes.maxlength 50
         , Html.Attributes.value guessInput
         , Html.Attributes.autofocus True
+        , Html.Attributes.hidden (GameState.targetWordRevealed gameState)
         , Html.Events.onInput UpdateGuessInput
         , Utils.Utils.onEnter SubmitGuess
         ]
         []
+
+
+viewTargetWordAlert : Maybe Guess -> Html Msg
+viewTargetWordAlert maybeGuess =
+    case maybeGuess of
+        Nothing ->
+            Html.p [] []
+
+        Just _ ->
+            Html.p
+                [ Html.Events.onClick RevealTargetWord ]
+                [ Html.text "Word guessed!" ]
 
 
 viewLastActionStatus : LastActionStatus -> Html Msg

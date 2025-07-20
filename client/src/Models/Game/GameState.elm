@@ -1,4 +1,15 @@
-module Models.Game.GameState exposing (GameState, calculatingScore, correctGuess, decoder, duplicateGuess, failedAction, guessCount, newGuess, receivedGuess)
+module Models.Game.GameState exposing
+    ( GameState
+    , calculatingScore
+    , correctGuess
+    , decoder
+    , duplicateGuess
+    , failedAction
+    , guessCount
+    , newGuess
+    , receivedGuess
+    , targetWordRevealed
+    )
 
 import Dict exposing (Dict)
 import Json.Decode as JD
@@ -9,6 +20,7 @@ import Models.Guess as Guess exposing (Guess)
 import Models.GuessScore exposing (GuessScore)
 import Models.Score as Score exposing (Score)
 import Utils.Data.Error exposing (ErrorMessage)
+import Utils.Utils
 
 
 type alias GameState =
@@ -24,8 +36,25 @@ type alias GameState =
 
 
 guessCount : GameState -> Int
-guessCount =
-    .guesses >> Dict.keys >> List.length
+guessCount state =
+    let
+        incorrectGuessCount =
+            state.guesses |> Dict.keys |> List.length
+
+        correctGuessCount =
+            state.targetWord |> Utils.Utils.m2i
+    in
+    incorrectGuessCount + correctGuessCount
+
+
+targetWordRevealed : GameState -> Bool
+targetWordRevealed state =
+    case state.targetWord of
+        Nothing ->
+            False
+
+        Just word ->
+            Dict.member word state.guesses
 
 
 
@@ -36,13 +65,16 @@ newGuess : GameState -> GuessScore -> GameState
 newGuess state guessScore =
     let
         stateWithNewGuess =
+            receivedGuess state guessScore
+
+        stateWithHandledCorrectGuess =
             if guessScore.score == 1 then
-                correctGuess state guessScore.guess
+                correctGuess stateWithNewGuess guessScore.guess
 
             else
-                receivedGuess state guessScore
+                stateWithNewGuess
     in
-    { stateWithNewGuess
+    { stateWithHandledCorrectGuess
         | lastActionStatus = LastActionStatus.Guess guessScore
     }
 

@@ -1,4 +1,4 @@
-module Utils.Utils exposing (onEnter)
+module Utils.Utils exposing (m2i, onEnter)
 
 import Html
 import Html.Events
@@ -16,3 +16,13 @@ onEnter msg =
                 JD.fail "not ENTER"
     in
     Html.Events.on "keydown" (JD.andThen isEnter Html.Events.keyCode)
+
+
+m2i : Maybe a -> Int
+m2i m =
+    case m of
+        Just _ ->
+            1
+
+        Nothing ->
+            0
