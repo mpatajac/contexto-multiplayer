@@ -1,3 +1,10 @@
+.last-guess {
+	/* TODO: extract to helper */
+	border-width: .25em;
+	border-style: solid;
+	border-color: var(--bulma-label-color);
+}
+
 .guess-score-list .guess-score {
 	/*
 		TODO: figure out how to prevent animation
@@ -5,13 +12,13 @@
 	*/
 	animation: new-guess 2500ms 100ms ease-in-out forwards;
 
-	border-width: 3px;
+	border-width: .25em;
 	border-style: solid;
-	border-color: black;
+	border-color: var(--bulma-label-color);
 }
 
 @keyframes new-guess {
 	100% {
-		border-color: white;
+		border-color: var(--bulma-body-background-color);
 	}
 }

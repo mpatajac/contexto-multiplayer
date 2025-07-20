@@ -1,6 +1,7 @@
-module Utils.Utils exposing (m2i, onEnter)
+module Utils.Utils exposing (classes, m2i, onEnter)
 
 import Html
+import Html.Attributes
 import Html.Events
 import Json.Decode as JD
 
@@ -26,3 +27,10 @@ m2i m =
 
         Nothing ->
             0
+
+
+classes : List String -> Html.Attribute msg
+classes classList =
+    classList
+        |> List.map (\cls -> ( cls, True ))
+        |> Html.Attributes.classList

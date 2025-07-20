@@ -248,16 +248,22 @@ viewGameState model gameState =
         sessionLinkText =
             "Session " ++ SessionId.display model.sessionId
     in
-    Html.main_ [] <|
-        [ Html.h1 [] [ Html.text "Contexto - multiplayer" ]
-        , Html.span [] [ Html.text <| guessCountText gameState ]
-        , Html.a [ Html.Attributes.href model.sessionLink ] [ Html.text sessionLinkText ]
+    Html.main_
+        [ Html.Attributes.class "section container is-max-tablet" ]
+    <|
+        [ Html.h1
+            [ Html.Attributes.class "title" ]
+            [ Html.text "Contexto" ]
+        , Html.h2
+            [ Html.Attributes.class "subtitle" ]
+            [ Html.text "multiplayer" ]
+        , Html.div [ Html.Attributes.class "mb-1 is-flex is-justify-content-space-between" ]
+            [ Html.span [] [ Html.text <| guessCountText gameState ]
+            , Html.a [ Html.Attributes.href model.sessionLink ] [ Html.text sessionLinkText ]
+            ]
         , Html.Lazy.lazy2 viewInput model.guessInput gameState
-        , viewSpacer
         , Html.Lazy.lazy viewTargetWordAlert gameState.targetWord
-        , viewSpacer
         , Html.Lazy.lazy viewLastActionStatus gameState.lastActionStatus
-        , viewSpacer
         , Html.Lazy.lazy viewGuesses gameState.guesses
         ]
 
@@ -266,10 +272,11 @@ viewInput : Guess -> GameState -> Html Msg
 viewInput guessInput gameState =
     Html.input
         [ Html.Attributes.placeholder "type a word"
+        , Html.Attributes.class "input block has-text-weight-semibold"
         , Html.Attributes.maxlength 50
         , Html.Attributes.value guessInput
         , Html.Attributes.autofocus True
-        , Html.Attributes.hidden (GameState.targetWordRevealed gameState)
+        , Html.Attributes.disabled (GameState.targetWordRevealed gameState)
         , Html.Events.onInput UpdateGuessInput
         , Utils.Utils.onEnter SubmitGuess
         ]
@@ -283,25 +290,43 @@ viewTargetWordAlert maybeGuess =
             Html.p [] []
 
         Just _ ->
+            let
+                classList =
+                    [ "notification", "is-primary", "py-3", "is-clickable", "has-text-weight-bold", "has-text-centered" ]
+            in
             Html.p
-                [ Html.Events.onClick RevealTargetWord ]
+                [ Html.Events.onClick RevealTargetWord
+                , Html.Attributes.title "Click to reveal word"
+                , Utils.Utils.classes classList
+                ]
                 [ Html.text "Word guessed!" ]
 
 
 viewLastActionStatus : LastActionStatus -> Html Msg
 viewLastActionStatus lastActionStatus =
+    let
+        classList =
+            [ "last-guess"
+            , "is-flex"
+            , "is-justify-content-space-between"
+            , "box"
+            , "p-3"
+            , "my-5"
+            , "has-text-weight-semibold"
+            ]
+    in
     case lastActionStatus of
         LastActionStatus.Initial ->
             Html.div [] []
 
         LastActionStatus.Processing ->
-            Html.div [ Html.Attributes.class "statusBox" ] [ Html.text "Calculating..." ]
+            Html.div [ Utils.Utils.classes classList ] [ Html.text "Calculating..." ]
 
         LastActionStatus.Message message ->
-            Html.div [ Html.Attributes.class "statusBox" ] [ Html.text message ]
+            Html.div [ Utils.Utils.classes classList ] [ Html.text message ]
 
         LastActionStatus.Guess guessScore ->
-            viewGuess ( guessScore.guess, guessScore.score )
+            viewGuess ( guessScore.guess, guessScore.score ) (Just classList)
 
 
 viewGuesses : Dict Guess Score -> Html Msg
@@ -319,23 +344,27 @@ viewGuesses guesses =
 viewKeyedGuess : ( Guess, Score ) -> ( String, Html Msg )
 viewKeyedGuess (( guess, _ ) as guessScore) =
     -- https://guide.elm-lang.org/optimization/keyed
-    ( guess, Html.Lazy.lazy viewGuess guessScore )
+    ( guess, Html.Lazy.lazy2 viewGuess guessScore Nothing )
 
 
-viewGuess : ( Guess, Score ) -> Html Msg
-viewGuess ( guess, score ) =
+viewGuess : ( Guess, Score ) -> Maybe (List String) -> Html Msg
+viewGuess ( guess, score ) maybeClassList =
+    let
+        defaultClassList =
+            [ "guess-score"
+            , "is-flex"
+            , "is-justify-content-space-between"
+            , "box"
+            , "p-3"
+            , "my-3"
+            , "has-text-weight-semibold"
+            ]
+
+        classList =
+            Maybe.withDefault defaultClassList maybeClassList
+    in
     Html.div
-        [ Html.Attributes.class "guess-score" ]
-        -- TODO: remove space, add spacing with styling
-        [ Html.span [] [ Html.text (guess ++ " ") ]
+        [ Utils.Utils.classes classList ]
+        [ Html.span [] [ Html.text guess ]
         , Html.span [] [ Html.text (String.fromInt score) ]
         ]
-
-
-viewSpacer : Html Msg
-viewSpacer =
-    -- TODO: remove
-    Html.div
-        [ Html.Attributes.style "margin-top" "1em"
-        ]
-        []
