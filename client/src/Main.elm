@@ -40,7 +40,6 @@ main =
 
 type alias Model =
     { sessionId : SessionId
-    , sessionLink : String
     , gameState : Fetched GameState
     , guessInput : String
     }
@@ -51,7 +50,6 @@ type alias Model =
 emptyModel : Model
 emptyModel =
     { sessionId = SessionId.empty
-    , sessionLink = ""
     , gameState = Fetched.Fetching
     , guessInput = ""
     }
@@ -77,11 +75,8 @@ init rawFlags =
 
 
 initData : Flags -> Model
-initData { sessionId, sessionLink } =
-    { emptyModel
-        | sessionId = sessionId
-        , sessionLink = sessionLink
-    }
+initData { sessionId } =
+    { emptyModel | sessionId = sessionId }
 
 
 
@@ -245,8 +240,11 @@ viewGameState model gameState =
         guessCountText state =
             "Guesses: " ++ (state |> GameState.guessCount |> String.fromInt)
 
+        sessionIdDisplay =
+            SessionId.display model.sessionId
+
         sessionLinkText =
-            "Session " ++ SessionId.display model.sessionId
+            "Session " ++ sessionIdDisplay
     in
     Html.main_
         [ Html.Attributes.class "section container is-max-tablet" ]
@@ -259,7 +257,7 @@ viewGameState model gameState =
             [ Html.text "multiplayer" ]
         , Html.div [ Html.Attributes.class "mb-1 is-flex is-justify-content-space-between" ]
             [ Html.span [] [ Html.text <| guessCountText gameState ]
-            , Html.a [ Html.Attributes.href model.sessionLink ] [ Html.text sessionLinkText ]
+            , Html.a [ Html.Attributes.href sessionIdDisplay ] [ Html.text sessionLinkText ]
             ]
         , Html.Lazy.lazy2 viewInput model.guessInput gameState
         , Html.Lazy.lazy viewTargetWordAlert gameState.targetWord
