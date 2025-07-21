@@ -10,7 +10,7 @@
 		TODO: figure out how to prevent animation
 		on initial guesses load (from server)
 	*/
-	animation: new-guess 500ms 100ms ease-in-out forwards;
+	animation: new-guess 500ms 500ms ease-in-out forwards;
 
 	border-width: .25em;
 	border-style: solid;
