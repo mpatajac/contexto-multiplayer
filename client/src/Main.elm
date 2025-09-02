@@ -16,7 +16,7 @@ import Models.Guess exposing (Guess)
 import Models.GuessScore exposing (GuessScore)
 import Models.Score exposing (Score)
 import Models.SessionId as SessionId exposing (SessionId)
-import Models.Sse.Message exposing (Message)
+import Models.Sse.Message exposing (Message(..))
 import Sse
 import Utils.Api.Response as Response
 import Utils.Data.Fetched as Fetched exposing (Fetched(..))
@@ -41,6 +41,7 @@ main =
 type alias Model =
     { sessionId : SessionId
     , gameState : Fetched GameState
+    , messageLog : List GuessScore
     , guessInput : String
     }
 
@@ -51,6 +52,7 @@ emptyModel : Model
 emptyModel =
     { sessionId = SessionId.empty
     , gameState = Fetched.Fetching
+    , messageLog = []
     , guessInput = ""
     }
 
@@ -119,8 +121,21 @@ update msg model =
 
                 updatedGameState =
                     Fetched.map updateGameState model.gameState
+
+                updatedMessageLog =
+                    case message of
+                        NewGuess guessScore ->
+                            guessScore :: model.messageLog
+
+                        _ ->
+                            model.messageLog
             in
-            ( { model | gameState = updatedGameState }, Cmd.none )
+            ( { model
+                | gameState = updatedGameState
+                , messageLog = updatedMessageLog
+              }
+            , Cmd.none
+            )
 
         SubmitGuess ->
             case model.gameState of
@@ -269,7 +284,13 @@ viewGameState model gameState =
         , Html.div [ Html.Attributes.class "content-wrapper" ]
             [ Html.aside [ Html.Attributes.class "sidebar" ] []
             , Html.Lazy.lazy viewGuesses gameState.guesses
-            , Html.aside [ Html.Attributes.class "sidebar" ] []
+            , Html.aside
+                [ Html.Attributes.class "sidebar" ]
+                [ Html.h2
+                    [ Html.Attributes.class "subtitle has-text-centered" ]
+                    [ Html.text "Log" ]
+                , Html.Keyed.node "div" [ Html.Attributes.class "message-log mx-6" ] (List.map viewMessage model.messageLog)
+                ]
             ]
         ]
 
@@ -382,6 +403,21 @@ viewGuess ( guess, score ) maybeClassList =
             []
             [ Html.text (String.fromInt score) ]
         ]
+
+
+viewMessage : GuessScore -> ( String, Html Msg )
+viewMessage { guess, score } =
+    let
+        classList =
+            [ "guess-score"
+            , "is-flex"
+            , "is-justify-content-space-between"
+            , "box"
+            , "p-3"
+            , "my-1"
+            ]
+    in
+    ( guess, Html.Lazy.lazy2 viewGuess ( guess, score ) (Just classList) )
 
 
 determineGuessColor : Score -> String
