@@ -249,24 +249,28 @@ viewGameState model gameState =
         sessionLinkText =
             "Session " ++ sessionIdDisplay
     in
-    Html.main_
-        [ Html.Attributes.class "section container is-max-tablet" ]
-    <|
-        [ Html.h1
-            [ Html.Attributes.class "title" ]
-            [ Html.text "Contexto" ]
-        , Html.h2
-            [ Html.Attributes.class "subtitle" ]
-            [ Html.text "multiplayer" ]
-        , Html.div [ Html.Attributes.class "mb-1 is-flex is-justify-content-space-between" ]
-            [ Html.span [] [ Html.text <| guessCountText gameState ]
-            , Html.a [ Html.Attributes.href sessionIdDisplay ] [ Html.text sessionLinkText ]
+    Html.main_ []
+        [ Html.header [ Html.Attributes.class "section container is-max-tablet" ]
+            [ Html.h1
+                [ Html.Attributes.class "title" ]
+                [ Html.text "Contexto" ]
+            , Html.h2
+                [ Html.Attributes.class "subtitle" ]
+                [ Html.text "multiplayer" ]
+            , Html.div [ Html.Attributes.class "mb-1 is-flex is-justify-content-space-between" ]
+                [ Html.span [] [ Html.text <| guessCountText gameState ]
+                , Html.a [ Html.Attributes.href sessionIdDisplay ] [ Html.text sessionLinkText ]
+                ]
+            , Html.Lazy.lazy2 viewInput model.guessInput gameState
+            , Html.Lazy.lazy viewTargetWordAlert gameState.targetWord
+            , Html.Lazy.lazy viewLastActionStatus gameState.lastActionStatus
+            , Html.hr [] []
             ]
-        , Html.Lazy.lazy2 viewInput model.guessInput gameState
-        , Html.Lazy.lazy viewTargetWordAlert gameState.targetWord
-        , Html.Lazy.lazy viewLastActionStatus gameState.lastActionStatus
-        , Html.hr [] []
-        , Html.Lazy.lazy viewGuesses gameState.guesses
+        , Html.div [ Html.Attributes.class "content-wrapper" ]
+            [ Html.aside [ Html.Attributes.class "sidebar" ] []
+            , Html.Lazy.lazy viewGuesses gameState.guesses
+            , Html.aside [ Html.Attributes.class "sidebar" ] []
+            ]
         ]
 
 
