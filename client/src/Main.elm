@@ -126,20 +126,23 @@ update msg model =
             case model.gameState of
                 Loaded gameState ->
                     let
+                        lowercasedInput =
+                            String.toLower model.guessInput
+
                         isDuplicateGuess =
-                            Dict.member model.guessInput gameState.guesses
+                            Dict.member lowercasedInput gameState.guesses
 
                         updatedGameState =
                             if not isDuplicateGuess then
                                 GameState.calculatingScore gameState
 
                             else
-                                model.guessInput
+                                lowercasedInput
                                     |> GameState.duplicateGuess gameState
 
                         transitionCmd =
                             if not isDuplicateGuess then
-                                Game.submitGuess model.sessionId model.guessInput HandleGuessSubmissionResponse
+                                Game.submitGuess model.sessionId lowercasedInput HandleGuessSubmissionResponse
 
                             else
                                 Cmd.none
@@ -151,7 +154,7 @@ update msg model =
                                 ""
 
                             else
-                                model.guessInput
+                                lowercasedInput
                       }
                     , transitionCmd
                     )
