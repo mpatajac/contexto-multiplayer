@@ -367,6 +367,8 @@ viewGuess ( guess, score ) maybeClassList =
     in
     Html.div
         [ Utils.Utils.classes classList
+
+        -- TODO?: color fill instead of letters?
         , Html.Attributes.style "border-color" (determineGuessColor score)
         , Html.Attributes.style "color" (determineGuessColor score)
 
@@ -383,14 +385,11 @@ viewGuess ( guess, score ) maybeClassList =
 determineGuessColor : Score -> String
 determineGuessColor score =
     let
-        colorVariable =
-            if score <= 300 then
-                "success"
-
-            else if score <= 1500 then
-                "warning"
-
-            else
-                "danger"
+        hue =
+            round
+                (2500
+                    / logBase e (toFloat (score + 200))
+                )
+                + 35
     in
-    "var(--bulma-" ++ colorVariable ++ ")"
+    "hsl(" ++ String.fromInt hue ++ ", 75%, 50%)"
